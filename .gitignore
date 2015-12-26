@@ -213,3 +213,5 @@ ModelManifest.xml
 /Arty/env
 /Arty/env1
 /env1
+
+*.pyc

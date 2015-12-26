@@ -1,8 +1,10 @@
-from slacker import Slacker
+from artybot.bot import Bot
 
-slack = Slacker("xoxb-17298431846-I8i5T6PolMevx527rEPZqozM")
+def main():
+	bot = Bot()
+	bot.run()
 
-channel = "#arty-test"
-message = "Hello happy people"
+if __name__ == '__main__':
+	main()
 
-slack.chat.post_message(channel, message, as_user = True)
+#slack.chat.post_message(channel, message, as_user = True)
