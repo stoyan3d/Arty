@@ -2,21 +2,20 @@ from slackbot.bot import respond_to
 from slackbot.bot import listen_to
 import re
 
+# The decrators are similar to re.compile('hello$', re.IGNORECASE)
 
-@respond_to('hello$', re.IGNORECASE)
+@respond_to('hello', re.IGNORECASE)
 def hello_reply(message):
-    message.reply('hello sender!')
+    message.reply('hello dude!')
 
 
-@respond_to('hello_formatting')
-def hello_reply_formatting(message):
-    # Format message with italic style
-    message.reply('_hello_ sender!')
-
-
-@listen_to('hello$')
+@listen_to('hello')
 def hello_send(message):
-    message.send('hello channel!')
+    message.send('hello all!')
+
+@listen_to('awesome|amazing|great work|nice|cool')
+def best_send(message):
+	message.send("Best one yet!")
 
 
 @listen_to('hello_decorators')
