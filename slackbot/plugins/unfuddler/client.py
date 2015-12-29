@@ -1,7 +1,10 @@
 from unfuddle import Unfuddle
 from settings import ACCOUNT_DETAILS
 import json
+import logging
 from datetime import datetime, date, timedelta
+
+logger = logging.getLogger(__name__)
 
 class Client(object):
 	def __init__(self):
@@ -9,13 +12,19 @@ class Client(object):
 
 	def get_active(self):
 		# Get all active tickets from T-Rex
+		logger.info ('Getting active tickets.')
+		active_tickets = []
+		index = 1
 		trex_id = "37108"
+		ticket_url = self.unf.base_url + '/a#/projects/' + trex_id + '/tickets/by_number/'
 		tickets = self.unf.get_tickets(trex_id)
-		print '\n'
-		print 'Active Tickets:'
 		for ticket in tickets:
 			if ticket['status'] == 'Accepted':
-				print ticket['summary']
+				active_tickets.append(str(index) + '. ' + ticket['summary'] + '\n' 
+					+ ticket_url + str(ticket['number']))
+				index += 1
+				#print ticket['summary']
+		return active_tickets
 
 
 # Get the most recent comments. These will be update daily.
@@ -33,5 +42,5 @@ class Client(object):
 						print '-----------------------------------------------------------------'
 
 	def print_something(self):
-		print str(datetime.today()) + " I'm alive on Python."
+		logger.info("I'm alive on Python.")
 		return "I'm alive on Slack."

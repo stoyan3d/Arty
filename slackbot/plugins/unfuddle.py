@@ -5,10 +5,9 @@ import re
 
 unf = Client()
 
-@listen_to('unf|unfuddle', re.IGNORECASE)
+@listen_to('active tickets', re.IGNORECASE)
 def unfuddle_send(message):
-	message.reply('Here are some Unfuddle tickets for you!')
-	text = unf.print_something()
-	text2 = ["stuff", "more stuff"]
-	for i in text2:
+	message.reply('Here are the currently active tickets:')
+	active_tickets = unf.get_active()
+	for i in active_tickets:
 		message.send(i)
