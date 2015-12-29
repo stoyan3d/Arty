@@ -4,12 +4,12 @@ import re
 
 # The decrators are similar to re.compile('hello$', re.IGNORECASE)
 
-@respond_to('hello', re.IGNORECASE)
+@respond_to('hello|hi', re.IGNORECASE)
 def hello_reply(message):
     message.reply('hello dude!')
 
 
-@listen_to('hello')
+@listen_to('hello|hi')
 def hello_send(message):
     message.send('hello all!')
 
