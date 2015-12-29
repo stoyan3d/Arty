@@ -1,21 +1,25 @@
 from unfuddle import Unfuddle
 from settings import ACCOUNT_DETAILS
+import json
 
 unf = Unfuddle(ACCOUNT_DETAILS["account"], ACCOUNT_DETAILS["username"], ACCOUNT_DETAILS["password"])
 
-report_title = "My Active Tickets"
-reports = unf.get_ticket_reports()
-my_active_tickets_report, = [r for r in reports if report_title in r['title']]
-report = unf.generate_ticket_report(my_active_tickets_report['id'])
-for group in report['groups']:
-    print group['title']
-    for t in group['tickets'][:5]:
-        print "%s %s" % (t['number'], t['summary'])
-    print
+accepted_tickets = []
 
+# Display current projects
+print "Active Projects:"
+projects = unf.get_projects()
+for index, project in enumerate(projects):
+    print '%s. %s' % (index+1, project['title'])
 
 # Get all active tickets from T-Rex
-# projects = unf.get_projects()
-# for index, project in enumerate(projects):
-# 	print '%s. %s' % (index+1, project['title'])
-# tickets = unf.get_tickets("37108")
+# Need to find a way to query the project ID
+tickets = unf.get_tickets("37108")
+
+# with open('tickets.json', 'w') as outfile:
+# 	json.dump(tickets, outfile)
+print 'Active Tickets:'
+for ticket in tickets:
+	if ticket['status'] == 'Accepted':
+		#accepted_tickets.append(ticket)
+		print ticket['summary']
