@@ -78,10 +78,11 @@ class Unfuddle(object):
         for page in count(1):
             tickets = self.get("projects/%s/tickets" % project_id,
                                query={'page': str(page), 'limit': 100})
-            if not tickets:
-                break
-            for ticket in tickets:
-                yield ticket
+            return tickets
+            # if not tickets:
+            #     break
+            # for ticket in tickets:
+            #     yield ticket
 
     def get_ticket(self, project_id, ticket_id):
         url = "projects/%s/tickets/%s"
