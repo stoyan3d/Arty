@@ -77,7 +77,7 @@ class Unfuddle(object):
     def get_tickets(self, project_id):
         for page in count(1):
             tickets = self.get("projects/%s/tickets" % project_id,
-                               query={'page': str(page), 'limit': 100})
+                               query={'page': str(page), 'limit': 100, 'comments' : True})
             return tickets
             # if not tickets:
             #     break
