@@ -56,8 +56,9 @@ class Unfuddle(object):
                     dl += len(data)
                     f.write(data)
                     done = int(50 * dl / total_length)
-                    sys.stdout.write("\r[%s%s]" % ('=' * done, ' ' * (50-done)) )    
+                    sys.stdout.write("\r[%s%s]" % ('=' * done, ' ' * (50-done)) )
                     sys.stdout.flush()
+            print '\n'
         return file_name
 
     def post(self, path, xmldata=None):
@@ -130,6 +131,15 @@ class Unfuddle(object):
         url = "projects/%s/tickets/%s"
         xmldata = to_xml("ticket", data)
         self.put(url % (project_id, ticket_id), xmldata)
+
+    def comment_ticket(self, project_id, ticket_id, data):
+        url = "projects/%s/tickets/%s/comments"
+        xmldata = to_xml("comment", data)
+        created_url = self.post(url % (project_id, ticket_id), xmldata)
+        #url_re = "%s/projects/(.*)/tickets/(.*)" % self.base_url
+        #project_id, ticket_id = re.match(url_re, created_url).groups()
+        #ticket_id = int(ticket_id)
+        #return ticket_id
 
     def get_ticket_reports(self, project_id=None):
         if project_id is None:

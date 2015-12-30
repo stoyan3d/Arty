@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 unf = Unfuddle(ACCOUNT_DETAILS["account"], ACCOUNT_DETAILS["username"], ACCOUNT_DETAILS["password"])
 trex_id = '37108'
-ticket_url = unf.base_url + '/a#/projects/' + trex_id + '/tickets/by_number/'
+ticket_url = unf.base_url + '/a#/projects/' + trex_id + '/tickets/'
 
 @listen_to('active tickets', re.IGNORECASE)
 def get_active(message):
@@ -24,11 +24,11 @@ def get_active(message):
 	tickets = unf.get_tickets(trex_id)
 	for ticket in tickets:
 		if ticket['status'] == 'Accepted':
-			message.send(str(index) + '. ' + ticket['summary'] + '\n' 
-				+ ticket_url + str(ticket['number']))
+			message.send(str(index) + '. ' + ticket['summary'] + ' Ticket ID is: ' + str(ticket['id']) + '\n' 
+				+ ticket_url + str(ticket['id']))
 			index += 1
 
-@listen_to('recent comments', re.IGNORECASE)
+@listen_to('recent updates', re.IGNORECASE)
 def get_comments(message):
 	# Get the most recent comments with their attachments. These will be updated daily.
 	message.reply('There are some updates:')
@@ -40,7 +40,8 @@ def get_comments(message):
 		if ticket.get('comments'):
 			for comment in ticket['comments']:
 				if datetime.strptime(comment['updated_at'], '%Y-%m-%dT%H:%M:%SZ') > current_time:
-					message.send(ticket_url + str(ticket['number']))
+					message.send(str(index) + '. ' + ticket['summary'] + ' Ticket ID is: ' + str(ticket['id']) + '\n' 
+						+ ticket_url + str(ticket['id']))
 					message.send(comment['body'])
 					if comment.get('attachments'):
 						for attachment in comment['attachments']:
@@ -54,6 +55,23 @@ def get_comments(message):
 							
 @respond_to('delete downloads', re.IGNORECASE)
 def delete_downloads(message):
-	message.reply('Deleting all downloaded files.')
 	rempath = os.path.join(os.getcwd(), 'downloads\\')
+	logger.info('Deleting files from ' + rempath)
+	message.reply('Deleting all downloaded files.')
 	shutil.rmtree(rempath)
+
+@listen_to('update comment')
+def update_ticket(message):
+	message.send('Creating comment.')
+	logger.info('Updating ticket.')
+	#print 'URL is:'
+	#print url
+	#comment = url[6:]
+	#print 'Comment is:'
+	#print comment
+	#ticket_number = url[3:5]
+	#print 'Ticket numer is:'
+	#print ticket_number
+	
+	#message.reply('Updating ticket number %s with the comment: %s.' %(ticket_number, comment))
+	unf.comment_ticket(trex_id, '582487', {'body' : 'Commented from a bot.'})
