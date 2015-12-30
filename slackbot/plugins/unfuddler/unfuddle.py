@@ -39,6 +39,16 @@ class Unfuddle(object):
                                                            r.text)
         return r.json()
 
+    def get_attachments(self, project_id, ticket_id, comment_id, attachment_id, file_name):
+        headers = {'accept': 'application/json'}
+        path = self.base_url + '/projects/%s/tickets/%d/comments/%d/attachments/%d/download?display=inline' % (project_id, ticket_id, comment_id, attachment_id)
+        r = self.s.get(path, headers = headers, stream = True)
+        with open(file_name, 'wb') as f:
+            for chunk in r.iter_content(chunk_size=1024):
+                if chunk:
+                    f.write(chunk)
+        return file_name
+
     def post(self, path, xmldata=None):
         logger.debug("xmldata: %s" % xmldata)
         headers = {

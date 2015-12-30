@@ -1,7 +1,7 @@
 from unfuddle import Unfuddle
 from settings import ACCOUNT_DETAILS
+import os
 import json
-import urllib2
 import logging
 from datetime import datetime, date, timedelta
 
@@ -28,9 +28,10 @@ class Client(object):
 		return active_tickets
 
 	def get_comments(self):
-		# Get the most recent comments. These will be updated daily.
+		# Get the most recent comments with their attachments. These will be updated daily.
 		logger.info('Getting recent comments.')
 		recent_comments = []
+		recent_attachments = {'comment' : None, 'attachments' : None}
 		tickets = self.unf.get_tickets(self.trex_id)
 		current_time = datetime.today() - timedelta(days = 1)
 		for ticket in tickets:
@@ -38,8 +39,13 @@ class Client(object):
 			if ticket.get('comments'):
 				for comment in ticket['comments']:
 					if datetime.strptime(comment['updated_at'], '%Y-%m-%dT%H:%M:%SZ') > current_time:
-						#print comment['body']
+
 						recent_comments.append(comment['body'])
+						if comment.get('attachments'):
+							for attachment in comment['attachments']:
+								# Create unique path for each download
+								self.unf.get_attachments(self.trex_id, ticket['id'], comment['id'], attachment['id'], attachment['filename'])
+
 		return recent_comments
 
 
@@ -48,6 +54,8 @@ class Client(object):
 		return "I'm alive on Slack."
 
 	def download(self):
-		#response = urllib2.urlopen('https://gameshastra.unfuddle.com/projects/37108/tickets/582458/comments/458997/attachments/190940/download', self.downloads + 'something.zip')
-		#html = response.read()
-		self.unf.get('projects/37108/tickets/582458/comments/458997/attachments/190940/download')
+		download_path = '5454\\stuff\\'
+		path = os.path.join(os.getcwd(), download_path)
+		if not os.path.exists(path):
+			os.makedirs(path)
+		self.unf.get_attachments(self.trex_id, 582458, 458997, 190940, path + 'something.zip')
