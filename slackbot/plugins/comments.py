@@ -3,6 +3,7 @@ from slackbot.bot import listen_to
 from slackbot.plugins.unfuddler.unfuddle import Unfuddle
 from slackbot.plugins.unfuddler.settings import ACCOUNT_DETAILS
 import os
+import shutil
 import logging
 import re
 from datetime import datetime, date, timedelta
@@ -39,13 +40,20 @@ def get_comments(message):
 		if ticket.get('comments'):
 			for comment in ticket['comments']:
 				if datetime.strptime(comment['updated_at'], '%Y-%m-%dT%H:%M:%SZ') > current_time:
+					message.send(ticket_url + str(ticket['number']))
+					message.send(comment['body'])
 					if comment.get('attachments'):
 						for attachment in comment['attachments']:
 							# Create unique path for each download
-							download_path = '%d\\%d\\' % (ticket['id'], comment['id'])
+							download_path = 'downloads\\%d\\%d\\' % (ticket['id'], comment['id'])
 							path = os.path.join(os.getcwd(), download_path)
 							if not os.path.exists(path):
 								os.makedirs(path)
 							unf.get_attachments(trex_id, ticket['id'], comment['id'], attachment['id'], path + attachment['filename'])
 							message.channel.upload_file(attachment['filename'], path + attachment['filename'])
-							message.send(comment['body'])
+							
+@respond_to('delete downloads', re.IGNORECASE)
+def delete_downloads(message):
+	message.reply('Deleting all downloaded files.')
+	rempath = os.path.join(os.getcwd(), 'downloads\\')
+	shutil.rmtree(rempath)

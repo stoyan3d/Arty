@@ -57,7 +57,7 @@ class Unfuddle(object):
                     f.write(data)
                     done = int(50 * dl / total_length)
                     sys.stdout.write("\r[%s%s]" % ('=' * done, ' ' * (50-done)) )    
-                    #sys.stdout.flush()
+                    sys.stdout.flush()
         return file_name
 
     def post(self, path, xmldata=None):
