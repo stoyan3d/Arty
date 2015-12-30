@@ -32,8 +32,6 @@ def get_comments(message):
 	# Get the most recent comments with their attachments. These will be updated daily.
 	message.reply('There are some updates:')
 	logger.info('Getting recent comments.')
-	#recent_comments = []
-	#recent_attachments = {'comment' : None, 'attachments' : None}
 	tickets = unf.get_tickets(trex_id)
 	current_time = datetime.today() - timedelta(days = 1)
 	for ticket in tickets:
@@ -41,9 +39,6 @@ def get_comments(message):
 		if ticket.get('comments'):
 			for comment in ticket['comments']:
 				if datetime.strptime(comment['updated_at'], '%Y-%m-%dT%H:%M:%SZ') > current_time:
-					#recent_attachments['comment'] = comment['body']
-					#recent_comments.append(comment['body'])
-					message.send(comment['body'])
 					if comment.get('attachments'):
 						for attachment in comment['attachments']:
 							# Create unique path for each download
@@ -53,3 +48,4 @@ def get_comments(message):
 								os.makedirs(path)
 							unf.get_attachments(trex_id, ticket['id'], comment['id'], attachment['id'], path + attachment['filename'])
 							message.channel.upload_file(attachment['filename'], path + attachment['filename'])
+							message.send(comment['body'])

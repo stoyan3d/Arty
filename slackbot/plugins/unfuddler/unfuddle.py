@@ -1,13 +1,14 @@
 import json
 import re
 import logging
+import sys
 from itertools import count
 from xml.etree import ElementTree as ET
 
 import requests
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.WARN)
+#logger.setLevel(logging.WARN)
 
 
 def to_xml(tag, data):
@@ -44,9 +45,19 @@ class Unfuddle(object):
         path = self.base_url + '/projects/%s/tickets/%d/comments/%d/attachments/%d/download?display=inline' % (project_id, ticket_id, comment_id, attachment_id)
         r = self.s.get(path, headers = headers, stream = True)
         with open(file_name, 'wb') as f:
-            for chunk in r.iter_content(chunk_size=1024):
-                if chunk:
-                    f.write(chunk)
+            logger.info('Downloading %s' % file_name)
+            total_length = r.headers.get('content-length')
+            if total_length is None: # no content length header
+                f.write(r.content)
+            else:
+                dl = 0
+                total_length = int(total_length)
+                for data in r.iter_content(chunk_size=1024):
+                    dl += len(data)
+                    f.write(data)
+                    done = int(50 * dl / total_length)
+                    sys.stdout.write("\r[%s%s]" % ('=' * done, ' ' * (50-done)) )    
+                    #sys.stdout.flush()
         return file_name
 
     def post(self, path, xmldata=None):
