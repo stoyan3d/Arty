@@ -132,7 +132,7 @@ class Unfuddle(object):
         xmldata = to_xml("ticket", data)
         self.put(url % (project_id, ticket_id), xmldata)
 
-    def comment_ticket(self, project_id, ticket_id, data):
+    def post_comment(self, project_id, ticket_id, data):
         url = "projects/%s/tickets/%s/comments"
         xmldata = to_xml("comment", data)
         created_url = self.post(url % (project_id, ticket_id), xmldata)

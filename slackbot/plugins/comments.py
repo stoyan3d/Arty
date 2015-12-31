@@ -6,6 +6,7 @@ import os
 import shutil
 import logging
 import re
+import random
 from datetime import datetime, date, timedelta
 
 logger = logging.getLogger(__name__)
@@ -14,7 +15,7 @@ unf = Unfuddle(ACCOUNT_DETAILS["account"], ACCOUNT_DETAILS["username"], ACCOUNT_
 trex_id = '37108'
 ticket_url = unf.base_url + '/a#/projects/' + trex_id + '/tickets/'
 
-@listen_to('active tickets', re.IGNORECASE)
+@respond_to('active tickets', re.IGNORECASE)
 def get_active(message):
 	# Get all active tickets from T-Rex
 	message.reply('Here are the currently active tickets:')
@@ -35,6 +36,7 @@ def get_comments(message):
 	logger.info('Getting recent comments.')
 	tickets = unf.get_tickets(trex_id)
 	current_time = datetime.today() - timedelta(days = 1)
+	index = 1
 	for ticket in tickets:
 		# Some tickets tend to not have comments
 		if ticket.get('comments'):
@@ -42,6 +44,7 @@ def get_comments(message):
 				if datetime.strptime(comment['updated_at'], '%Y-%m-%dT%H:%M:%SZ') > current_time:
 					message.send(str(index) + '. ' + ticket['summary'] + ' Ticket ID is: ' + str(ticket['id']) + '\n' 
 						+ ticket_url + str(ticket['id']))
+					index += 1
 					message.send(comment['body'])
 					if comment.get('attachments'):
 						for attachment in comment['attachments']:
@@ -60,18 +63,24 @@ def delete_downloads(message):
 	message.reply('Deleting all downloaded files.')
 	shutil.rmtree(rempath)
 
-@listen_to('update comment')
-def update_ticket(message):
+@respond_to(r'feedback re:(\d{6})(.*)')
+def update_ticket(message, ticket_id, reply):
 	message.send('Creating comment.')
 	logger.info('Updating ticket.')
-	#print 'URL is:'
-	#print url
-	#comment = url[6:]
-	#print 'Comment is:'
-	#print comment
-	#ticket_number = url[3:5]
-	#print 'Ticket numer is:'
-	#print ticket_number
-	
-	#message.reply('Updating ticket number %s with the comment: %s.' %(ticket_number, comment))
-	unf.comment_ticket(trex_id, '582487', {'body' : 'Commented from a bot.'})
+	intro = 'Hello, \n'
+	body = [
+	'Looks good! Please move on to the next stage.',
+	'No feedback from us, it looks amazing!',
+	'Excellent work! Looking forward to the next stage.'
+	]
+	outro = '\nThanks,\nStoyan'
+	comment = intro + random.choice(body) + outro
+
+	reply = reply[1:]
+	if reply == 'approved':
+		message.reply('Updating ticket number %s with the comment:\n%s.' %(ticket_id, comment))
+	#unf.post_comment(trex_id, '582487', {'body' : 'Commented from a bot.'})
+
+# @listen_to('https://(.*)')
+# def download_files(message, url):
+# 	message.send('Yup, there is something to download: %s' %url)
