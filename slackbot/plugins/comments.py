@@ -7,6 +7,7 @@ import shutil
 import logging
 import re
 import random
+import time
 from datetime import datetime, date, timedelta
 
 logger = logging.getLogger(__name__)
@@ -14,6 +15,7 @@ logger = logging.getLogger(__name__)
 unf = Unfuddle(ACCOUNT_DETAILS["account"], ACCOUNT_DETAILS["username"], ACCOUNT_DETAILS["password"])
 trex_id = '37108'
 ticket_url = unf.base_url + '/a#/projects/' + trex_id + '/tickets/'
+update_time = 30 # In minutes
 
 @respond_to('active tickets', re.IGNORECASE)
 def get_active(message):
@@ -29,32 +31,35 @@ def get_active(message):
 				+ ticket_url + str(ticket['id']))
 			index += 1
 
-@listen_to('recent updates', re.IGNORECASE)
+@respond_to('listen to updates', re.IGNORECASE)
 def get_comments(message):
 	# Get the most recent comments with their attachments. These will be updated daily.
-	message.reply('There are some updates:')
-	logger.info('Getting recent comments.')
-	tickets = unf.get_tickets(trex_id)
-	current_time = datetime.today() - timedelta(days = 1)
-	index = 1
-	for ticket in tickets:
-		# Some tickets tend to not have comments
-		if ticket.get('comments'):
-			for comment in ticket['comments']:
-				if datetime.strptime(comment['updated_at'], '%Y-%m-%dT%H:%M:%SZ') > current_time:
-					message.send(str(index) + '. ' + ticket['summary'] + ' Ticket ID is: ' + str(ticket['id']) + '\n' 
-						+ ticket_url + str(ticket['id']))
-					index += 1
-					message.send(comment['body'])
-					if comment.get('attachments'):
-						for attachment in comment['attachments']:
-							# Create unique path for each download
-							download_path = 'downloads\\%d\\%d\\' % (ticket['id'], comment['id'])
-							path = os.path.join(os.getcwd(), download_path)
-							if not os.path.exists(path):
-								os.makedirs(path)
-							unf.get_attachments(trex_id, ticket['id'], comment['id'], attachment['id'], path + attachment['filename'])
-							message.channel.upload_file(attachment['filename'], path + attachment['filename'])
+	# Need to implement a time since last ran variable.
+	while True:
+		#message.reply('There are some updates:')
+		logger.info('Pinging for recent comments.')
+		tickets = unf.get_tickets(trex_id)
+		current_time = datetime.today() - timedelta(minutes = update_time + 5)
+		index = 1
+		for ticket in tickets:
+			# Some tickets tend to not have comments
+			if ticket.get('comments'):
+				for comment in ticket['comments']:
+					if datetime.strptime(comment['updated_at'], '%Y-%m-%dT%H:%M:%SZ') > current_time:
+						message.send(str(index) + '. ' + ticket['summary'] + ' Ticket ID is: ' + str(ticket['id']) + '\n' 
+							+ ticket_url + str(ticket['id']))
+						index += 1
+						message.send(comment['body'])
+						if comment.get('attachments'):
+							for attachment in comment['attachments']:
+								# Create unique path for each download
+								download_path = 'downloads\\%d\\%d\\' % (ticket['id'], comment['id'])
+								path = os.path.join(os.getcwd(), download_path)
+								if not os.path.exists(path):
+									os.makedirs(path)
+								unf.get_attachments(trex_id, ticket['id'], comment['id'], attachment['id'], path + attachment['filename'])
+								message.channel.upload_file(attachment['filename'], path + attachment['filename'])
+		time.sleep(60*update_time)
 							
 @respond_to('delete downloads', re.IGNORECASE)
 def delete_downloads(message):
@@ -79,7 +84,7 @@ def update_ticket(message, ticket_id, reply):
 	reply = reply[1:]
 	if reply == 'approved':
 		message.reply('Updating ticket number %s with the comment:\n%s.' %(ticket_id, comment))
-	#unf.post_comment(trex_id, '582487', {'body' : 'Commented from a bot.'})
+		unf.post_comment(trex_id, ticket_id, {'body' : comment})
 
 # @listen_to('https://(.*)')
 # def download_files(message, url):
