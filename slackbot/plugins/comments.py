@@ -17,7 +17,7 @@ trex_id = '37108'
 stoyan_id = 50705
 natalie_id = 50734
 ticket_url = unf.base_url + '/a#/projects/' + trex_id + '/tickets/'
-update_time = 10 # In minutes
+update_time = 60 # In minutes
 
 @respond_to('active tickets', re.IGNORECASE)
 def get_active(message):
@@ -47,7 +47,7 @@ def get_comments(message):
 	while True:
 		for ticket in tickets:
 			# Some tickets tend to not have comments
-			if ticket.get('comments'):
+			if ticket.get('comments') and ticket['status'] == 'Accepted':
 				#for comment in ticket['comments']:
 					#if datetime.strptime(comment['updated_at'], '%Y-%m-%dT%H:%M:%SZ') > current_time:
 				if (ticket['comments'][-1]['author_id'] != stoyan_id and ticket['comments'][-1]['author_id'] != stoyan_id):
