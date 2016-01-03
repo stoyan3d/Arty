@@ -64,7 +64,7 @@ def get_comments(message):
 								os.makedirs(path)
 							unf.get_attachments(trex_id, ticket['id'], ticket['comments'][-1]['id'], attachment['id'], path + attachment['filename'])
 							message.channel.upload_file(attachment['filename'], path + attachment['filename'])
-					message.send('====================================')
+					#message.send('====================================')
 		time.sleep(update_time*60)
 
 @respond_to('delete downloads', re.IGNORECASE)
@@ -79,13 +79,13 @@ def update_ticket(message, ticket_id, reply):
 	#TODO Still need to add functionality to upload attachments
 	message.send('Creating comment.')
 	logger.info('Updating ticket.')
-	intro = 'Hello, \n'
+	intro = 'Hello, \n\n'
 	body = [
 	'Looks good! Please move on to the next stage.',
 	'No feedback from us, it looks great!',
 	'Excellent work! Looking forward to the next stage.'
 	]
-	outro = '\nThanks,\nStoyan'
+	outro = '\n\nThanks,\nStoyan'
 	comment = intro + random.choice(body) + outro
 
 	reply = reply[1:]
