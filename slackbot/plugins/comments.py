@@ -14,10 +14,10 @@ logger = logging.getLogger(__name__)
 
 unf = Unfuddle(ACCOUNT_DETAILS["account"], ACCOUNT_DETAILS["username"], ACCOUNT_DETAILS["password"])
 trex_id = '37108'
-stoyan_id = '50705'
-natalie_id = '50734'
+stoyan_id = 50705
+natalie_id = 50734
 ticket_url = unf.base_url + '/a#/projects/' + trex_id + '/tickets/'
-update_time = 1 # In minutes
+update_time = 10 # In minutes
 
 @respond_to('active tickets', re.IGNORECASE)
 def get_active(message):
@@ -48,22 +48,23 @@ def get_comments(message):
 		for ticket in tickets:
 			# Some tickets tend to not have comments
 			if ticket.get('comments'):
-				for comment in ticket['comments']:
-					if datetime.strptime(comment['updated_at'], '%Y-%m-%dT%H:%M:%SZ') > current_time:
-						message.send(comment['updated_at'])
-						message.send(str(index) + '. ' + ticket['summary'] + ' Ticket ID is: ' + str(ticket['id']) + '\n' 
-							+ ticket_url + str(ticket['id']))
-						index += 1
-						message.send(comment['body'])
-						if comment.get('attachments'):
-							for attachment in comment['attachments']:
-								# Create unique path for each download
-								download_path = 'downloads\\%d\\%d\\' % (ticket['id'], comment['id'])
-								path = os.path.join(os.getcwd(), download_path)
-								if not os.path.exists(path):
-									os.makedirs(path)
-								unf.get_attachments(trex_id, ticket['id'], comment['id'], attachment['id'], path + attachment['filename'])
-								message.channel.upload_file(attachment['filename'], path + attachment['filename'])
+				#for comment in ticket['comments']:
+					#if datetime.strptime(comment['updated_at'], '%Y-%m-%dT%H:%M:%SZ') > current_time:
+				if (ticket['comments'][-1]['author_id'] != stoyan_id and ticket['comments'][-1]['author_id'] != stoyan_id):
+					#message.send(comment['updated_at'])
+					message.send(str(index) + '. ' + ticket['summary'] + ' Ticket ID is: ' + str(ticket['id']) + '\n' 
+						+ ticket_url + str(ticket['id']))
+					index += 1
+					message.send(ticket['comments'][-1]['body'])
+					if ticket['comments'][-1].get('attachments'):
+						for attachment in ticket['comments'][-1]['attachments']:
+							# Create unique path for each download
+							download_path = 'downloads\\%d\\%d\\' % (ticket['id'], ticket['comments'][-1]['id'])
+							path = os.path.join(os.getcwd(), download_path)
+							if not os.path.exists(path):
+								os.makedirs(path)
+							unf.get_attachments(trex_id, ticket['id'], ticket['comments'][-1]['id'], attachment['id'], path + attachment['filename'])
+							message.channel.upload_file(attachment['filename'], path + attachment['filename'])
 		time.sleep(update_time*60)
 
 @respond_to('delete downloads', re.IGNORECASE)
