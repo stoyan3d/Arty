@@ -1,7 +1,3 @@
-from slackbot.bot import respond_to
-from slackbot.bot import listen_to
-from slackbot.plugins.unfuddler.unfuddle import Unfuddle
-from slackbot.plugins.unfuddler.settings import ACCOUNT_DETAILS
 import os
 import shutil
 import logging
@@ -9,11 +5,17 @@ import re
 import random
 import time
 from datetime import datetime, date, timedelta
+from slackbot.bot import respond_to
+from slackbot.bot import listen_to
+from slackbot.plugins.unfuddler.unfuddle import Unfuddle
+from slackbot.plugins.unfuddler.settings import ACCOUNT_DETAILS
 
 logger = logging.getLogger(__name__)
 
 unf = Unfuddle(ACCOUNT_DETAILS["account"], ACCOUNT_DETAILS["username"], ACCOUNT_DETAILS["password"])
 trex_id = '37108'
+stoyan_id = '50705'
+natalie_id = '50734'
 ticket_url = unf.base_url + '/a#/projects/' + trex_id + '/tickets/'
 update_time = 1 # In minutes
 
@@ -32,6 +34,8 @@ def get_active(message):
 			index += 1
 
 @listen_to('recent updates', re.IGNORECASE)
+# TODO: get latest Gameshastra comment for each active ticket
+# Check for this every hour and ping relevant people
 def get_comments(message):
 	# Get the most recent comments with their attachments. These will be updated daily.
 	message.reply('There are some updates:')
@@ -61,6 +65,7 @@ def get_comments(message):
 								unf.get_attachments(trex_id, ticket['id'], comment['id'], attachment['id'], path + attachment['filename'])
 								message.channel.upload_file(attachment['filename'], path + attachment['filename'])
 		time.sleep(update_time*60)
+
 @respond_to('delete downloads', re.IGNORECASE)
 def delete_downloads(message):
 	rempath = os.path.join(os.getcwd(), 'downloads\\')
@@ -75,7 +80,7 @@ def update_ticket(message, ticket_id, reply):
 	intro = 'Hello, \n'
 	body = [
 	'Looks good! Please move on to the next stage.',
-	'No feedback from us, it looks amazing!',
+	'No feedback from us, it looks great!',
 	'Excellent work! Looking forward to the next stage.'
 	]
 	outro = '\nThanks,\nStoyan'
@@ -84,7 +89,9 @@ def update_ticket(message, ticket_id, reply):
 	reply = reply[1:]
 	if reply == 'approved':
 		message.reply('Updating ticket number %s with the comment:\n%s.' %(ticket_id, comment))
-	#unf.post_comment(trex_id, '582487', {'body' : 'Commented from a bot.'})
+		unf.post_comment(trex_id, ticket_id, {'body' : comment})
+	else:
+		message.reply('Not valid feedback.')
 
 # @listen_to('https://(.*)')
 # def download_files(message, url):
