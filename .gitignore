@@ -1,2 +1,6 @@
 env1/
+downloads/
 *.pyc
+*.zip
+*.jpg
+*.png

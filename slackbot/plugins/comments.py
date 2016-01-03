@@ -34,7 +34,6 @@ def get_active(message):
 			index += 1
 
 @respond_to('listen to updates', re.IGNORECASE)
-# TODO: get latest Gameshastra comment for each active ticket
 # Check for this every hour and ping relevant people
 def get_comments(message):
 	# Get the most recent comments with their attachments. These will be updated daily.
@@ -77,6 +76,7 @@ def delete_downloads(message):
 
 @respond_to(r'feedback re:(\d{6})(.*)')
 def update_ticket(message, ticket_id, reply):
+	#TODO Still need to add functionality to upload attachments
 	message.send('Creating comment.')
 	logger.info('Updating ticket.')
 	intro = 'Hello, \n'
