@@ -33,7 +33,7 @@ def get_active(message):
 				+ ticket_url + str(ticket['id']))
 			index += 1
 
-@listen_to('recent updates', re.IGNORECASE)
+@respond_to('recent updates', re.IGNORECASE)
 # TODO: get latest Gameshastra comment for each active ticket
 # Check for this every hour and ping relevant people
 def get_comments(message):
