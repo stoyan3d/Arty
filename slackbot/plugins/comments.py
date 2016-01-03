@@ -50,7 +50,7 @@ def get_comments(message):
 			if ticket.get('comments') and ticket['status'] == 'Accepted':
 				#for comment in ticket['comments']:
 					#if datetime.strptime(comment['updated_at'], '%Y-%m-%dT%H:%M:%SZ') > current_time:
-				if (ticket['comments'][-1]['author_id'] != stoyan_id and ticket['comments'][-1]['author_id'] != stoyan_id):
+				if (ticket['comments'][-1]['author_id'] != stoyan_id and ticket['comments'][-1]['author_id'] != natalie_id):
 					message.send('====================================')
 					message.send(str(index) + '. ' + ticket['summary'] + ' | Ticket ID is: ' + str(ticket['id']) + '\n' 
 						+ ticket_url + str(ticket['id']))
