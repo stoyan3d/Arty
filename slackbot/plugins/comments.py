@@ -33,12 +33,12 @@ def get_active(message):
 				+ ticket_url + str(ticket['id']))
 			index += 1
 
-@respond_to('recent updates', re.IGNORECASE)
+@respond_to('listen to updates', re.IGNORECASE)
 # TODO: get latest Gameshastra comment for each active ticket
 # Check for this every hour and ping relevant people
 def get_comments(message):
 	# Get the most recent comments with their attachments. These will be updated daily.
-	message.reply('There are some updates:')
+	message.send('There are some updates:')
 	logger.info('Getting recent comments.')
 	tickets = unf.get_tickets(trex_id)
 	current_time = datetime.today() - timedelta(days = 3)
@@ -51,8 +51,8 @@ def get_comments(message):
 				#for comment in ticket['comments']:
 					#if datetime.strptime(comment['updated_at'], '%Y-%m-%dT%H:%M:%SZ') > current_time:
 				if (ticket['comments'][-1]['author_id'] != stoyan_id and ticket['comments'][-1]['author_id'] != stoyan_id):
-					#message.send(comment['updated_at'])
-					message.send(str(index) + '. ' + ticket['summary'] + ' Ticket ID is: ' + str(ticket['id']) + '\n' 
+					message.send('====================================')
+					message.send(str(index) + '. ' + ticket['summary'] + ' | Ticket ID is: ' + str(ticket['id']) + '\n' 
 						+ ticket_url + str(ticket['id']))
 					index += 1
 					message.send(ticket['comments'][-1]['body'])
@@ -65,6 +65,7 @@ def get_comments(message):
 								os.makedirs(path)
 							unf.get_attachments(trex_id, ticket['id'], ticket['comments'][-1]['id'], attachment['id'], path + attachment['filename'])
 							message.channel.upload_file(attachment['filename'], path + attachment['filename'])
+					message.send('====================================')
 		time.sleep(update_time*60)
 
 @respond_to('delete downloads', re.IGNORECASE)
