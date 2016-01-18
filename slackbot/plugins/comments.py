@@ -17,7 +17,7 @@ trex_id = '37108'
 stoyan_id = 50705
 natalie_id = 50734
 ticket_url = unf.base_url + '/a#/projects/' + trex_id + '/tickets/'
-update_time = 60 # In minutes
+update_time = 60*2 # In minutes
 
 @respond_to('active tickets', re.IGNORECASE)
 def get_active(message):
@@ -33,17 +33,17 @@ def get_active(message):
 				+ ticket_url + str(ticket['id']))
 			index += 1
 
-@respond_to('listen to updates', re.IGNORECASE)
+@respond_to('listen to updates|roll out', re.IGNORECASE)
 # Check for this every hour and ping relevant people
 def get_comments(message):
 	# Get the most recent comments with their attachments. These will be updated daily.
 	message.send('There are some updates:')
-	logger.info('Getting recent comments.')
-	tickets = unf.get_tickets(trex_id)
-	current_time = datetime.today() - timedelta(days = 3)
-	print current_time
+	#current_time = datetime.today() - timedelta(days = 3)
+	#print current_time
 	index = 1
 	while True:
+		logger.info('Getting recent comments.')
+		tickets = unf.get_tickets(trex_id)
 		for ticket in tickets:
 			# Some tickets tend to not have comments
 			if ticket.get('comments') and ticket['status'] == 'Accepted':
@@ -64,6 +64,7 @@ def get_comments(message):
 								os.makedirs(path)
 							unf.get_attachments(trex_id, ticket['id'], ticket['comments'][-1]['id'], attachment['id'], path + attachment['filename'])
 							message.channel.upload_file(attachment['filename'], path + attachment['filename'])
+							logger.info('Uploading file ' + path + attachment['filename'])
 					#message.send('====================================')
 		time.sleep(update_time*60)
 
@@ -93,7 +94,9 @@ def update_ticket(message, ticket_id, reply):
 		message.reply('Updating ticket number %s with the comment:\n%s.' %(ticket_id, comment))
 		unf.post_comment(trex_id, ticket_id, {'body' : comment})
 	else:
-		message.reply('Not valid feedback.')
+		comment = intro + reply + outro
+		message.reply('Updating ticket number %s with the comment:\n%s.' %(ticket_id, comment))
+		unf.post_comment(trex_id, ticket_id, {'body' : comment})
 
 # @listen_to('https://(.*)')
 # def download_files(message, url):
